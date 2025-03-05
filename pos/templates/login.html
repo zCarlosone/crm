@@ -1,0 +1,117 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/login.css' %}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    #backgroundChart {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+    }
+</style>
+</head>
+<body class="fondo">
+    <canvas id="backgroundChart"></canvas>
+    {% block content %}
+
+   <div id="fondo">
+    <div class="container mt-5" id="login-container">
+        <div class="row justify-content-center" id="login-row">
+            <div class="col-md-6" id="login-col">
+                <h2 class="mb-4 text-center" id="login-title">¡BIENVENIDO A LA PLATAFORMA!</h2>
+                {% if messages %}
+                    <div class="alert alert-danger" id="login-alert">
+                        {% for message in messages %}
+                            {{ message }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <form method="post" id="login-form">
+                    {% csrf_token %}
+                    <div class="form-group" id="username-group">
+                        <label for="username">Usuario:</label>
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Ingrese su usuario" required>
+                    </div>
+                    <div class="form-group" id="password-group">
+                        <label for="password">Contraseña:</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Ingrese su contraseña" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block" id="login-btn">Iniciar Sesión</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginForm = document.getElementById('login-form');
+        loginForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const submitButton = document.getElementById('login-btn');
+            submitButton.innerHTML = 'Cargando...';
+            submitButton.disabled = true;
+            setTimeout(() => {
+                loginForm.submit();
+            }, 1000);
+        });
+
+        // Chart.js Background Animation
+        const ctx = document.getElementById('backgroundChart').getContext('2d');
+        let chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array.from({length: 30}, (_, i) => i + 1),
+                datasets: [{
+                    label: 'OLL-SOLUTIONS',
+                    data: Array.from({length: 30}, () => Math.random() * 100),
+                    borderColor: 'rgba(75, 192, 192, 0.6)',
+                    borderWidth: 1.5,
+                    fill: true,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: {
+                    duration: 2000,
+                    easing: 'easeInOutQuad'
+                },
+                scales: {
+                    x: { display: false },
+                    y: { display: false }
+                },
+                elements: {
+                    line: { tension: 0.4 }
+                }
+            }
+        });
+
+        setInterval(() => {
+            chart.data.datasets[0].data = Array.from({length: 30}, () => Math.random() * 100);
+            chart.update();
+        }, 3000);
+    });
+</script>
+<footer class="text-center mt-4">
+    <p> &copy; 𝟐𝟎𝟐𝟒 𝐓𝐨𝐝𝐨𝐬 𝐥𝐨𝐬 𝐝𝐞𝐫𝐞𝐜𝐡𝐨𝐬 𝐫𝐞𝐬𝐞𝐫𝐯𝐚𝐝𝐨𝐬. 𝐇</p>
+</footer>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+</body>
+</html>

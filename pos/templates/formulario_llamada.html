@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulario de Llamada</title>
+  <link rel="stylesheet" href="{% static 'css/formulario.css' %}">
+</head>
+<body>
+  <div class="container">
+    <h2>Formulario de Llamada</h2>
+    <form action="{% url 'guardar_llamada' %}" method="POST">
+      {% csrf_token %}
+      <input type="hidden" name="asesor_id" value="{{ asesor.id }}">
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="numero_cliente">TELEFONO:</label>
+          <input type="text" id="numero_cliente" name="numero_cliente" value="{{ numero_cliente }}">
+        </div>
+        <div class="form-group">
+          <label for="nombre_cliente">DNI:</label>
+          <input type="text" id="nombre_cliente" name="nombre_cliente" value="{{ nombre_cliente }}">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="nombre">NOMBRE:</label>
+          <input type="text" id="nombre" name="nombre" value="{{ nombre }}" required>
+        </div>
+        <div class="form-group">
+          <label for="disprodep">UBICACION:</label>
+          <input type="text" id="disprodep" name="disprodep" value="{{ disprodep }}" required>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="campana">CAMPAÑA:</label>
+          <input type="text" id="campana" name="campana" value="{{ campana }}" required>
+        </div>
+        <div class="form-group">
+          <label for="oferta_sugerida">OFERTA:</label>
+          <input type="text" id="oferta_sugerida" name="oferta_sugerida" value="{{ oferta_sugerida }}">
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="velocidad_real">VELOCIDAD-REAL:</label>
+          <input type="text" id="velocidad_real" name="velocidad_real" value="{{ velocidad_real }}">
+        </div>
+        <div class="form-group">
+          <label for="precio">PRECIO:</label>
+          <input type="text" id="precio" name="precio" value="{{ precio }}">
+        </div>
+      </div>
+
+    <!-- TIPIFICACION y DESCRIPCION -->
+    <div class="form-row">
+        <div class="form-group">
+          <label for="tipificacion">TIPIFICACION:</label>
+          <select id="tipificacion" name="tipificacion">
+            <option value="-">-</option>
+            <option value="CONTACTO EFECTIVO">CONTACTO EFECTIVO</option>
+            <option value="CONTACTO NO EFECTIVO">CONTACTO NO EFECTIVO</option>
+            <option value="NO CONTACTO">NO CONTACTO</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="descripcion">DESCRIPCION:</label>
+          <select id="descripcion" name="descripcion">
+            <!-- Se llenará dinámicamente según la tipificación -->
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>OBSERVACIONES:</label>
+          <input type="text">
+        </div>
+      </div>
+      
+      
+      <div class="form-row">
+        <button type="submit" class="btn">SUBIR FICHA</button>
+      </div>
+    </form>
+  </div>
+</body>
+<script>
+    function abrirFormulario() {
+      window.open(
+        'http://tudominio.com/ruta_del_formulario', // URL del formulario
+        'FormularioLlamada',                        // Nombre de la ventana
+        'width=600,height=400,scrollbars=yes'         // Dimensiones y otras opciones
+      );
+    }
+
+    const tipificacionSelect = document.getElementById('tipificacion');
+    const descripcionSelect = document.getElementById('descripcion');
+
+    const opciones = {
+      "CONTACTO EFECTIVO": [
+        "VENTA CON TITULAR",
+        "AGENDADO",
+        "VOLVER A LLAMAR",
+        "NO DESEA SERVICIO",
+        "NO PERMITE EXPLICACION - COLGO",
+        "YA ESCUCHO OFERTA WIN",
+        "NO DESEA POR PRECIO ALTO"
+      ],
+      "CONTACTO NO EFECTIVO": [
+        "PRE-VENTA EN PROCESO",
+        "YA CUENTA CON SERVICIO ACTIVO",
+        "CONTRATO VIGENTE CON SU OPER.",
+        "BLOQUEO EN VALID. DE IDENTIDAD",
+        "DESEA PROMOCION NO VIGENTE",
+        "NO TIENE CAMPANA CROSS",
+        "CLIENTE TIENE DEUDA VIGENTE",
+        "CLIENTE DE BAJA",
+        "SIN COBERTURA",
+        "LISTA NEGRA DE ON"
+      ],
+      "NO CONTACTO": [
+        "NUMERO INCORRECTO",
+        "CORTA LLAMADA",
+        "LLAMADA EN VACIO",
+        "LLAMADA MUDA",
+        "NO CONTESTA",
+        "FUERA DE SERVICIO"
+      ],
+      "-": [
+        "-" // O puedes dejarlo vacío o una opción por defecto
+      ]
+    };
+
+    function actualizarDescripcion() {
+      const tipificacion = tipificacionSelect.value;
+      // Limpiar las opciones existentes
+      descripcionSelect.innerHTML = "";
+      if (opciones[tipificacion]) {
+        opciones[tipificacion].forEach(function(opcion) {
+          const optionElement = document.createElement('option');
+          optionElement.value = opcion;
+          optionElement.text = opcion;
+          descripcionSelect.appendChild(optionElement);
+        });
+      }
+    }
+
+    tipificacionSelect.addEventListener('change', actualizarDescripcion);
+    // Cargar opciones al iniciar la página
+    actualizarDescripcion();
+
+</script>  
+</html>

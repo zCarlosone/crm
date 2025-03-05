@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/recursos.css' %}">
+    <title>Dashboard Recursos Humanos</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <ul class="nav-links">
+            <li><a href="#" class="tab-link" data-tab="listas">listas</a></li>
+            <li><a href="#" class="tab-link" data-tab="base">base</a></li>
+            <li><a href="#" class="tab-link" data-tab="extras">extras</a></li>
+        </ul>
+    </nav>
+    
+    <div id="listas" class="tab-content">
+        <h2>Subir Archivo CSV</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="csv_file" required>
+            <button type="submit">Subir y Procesar</button>
+        </form>
+    
+        {% if conteo_listas %}
+            <h3>Resultados por Lista</h3>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Lista</th>
+                        <th>Total Registros</th>
+                        <th>Ventas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lista in conteo_listas %}
+                        <tr>
+                            <td>{{ lista.list_description }}</td>
+                            <td>{{ lista.total_registros }}</td>
+                            <td>{{ lista.venta }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+    
+    
+
+    <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+    
+    <script>
+        document.querySelectorAll('.tab-link').forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.style.display = 'none';
+                });
+                const targetTab = document.getElementById(this.getAttribute('data-tab'));
+                if (targetTab) {
+                    targetTab.style.display = 'block';
+                }
+            });
+        });
+        document.addEventListener("DOMContentLoaded", function () {
+            const form = document.querySelector("form");
+            const fileInput = document.querySelector("input[name='csv_file']");
+    
+            if (form) {
+                form.addEventListener("submit", function (event) {
+                    event.preventDefault(); // Evita que la página se recargue
+    
+                    if (!fileInput.files.length) {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "Por favor, selecciona un archivo CSV antes de subir.",
+                        });
+                        return;
+                    }
+    
+                    const formData = new FormData(form);
+    
+                    Swal.fire({
+                        title: "Subiendo archivo...",
+                        text: "Por favor, espera.",
+                        allowOutsideClick: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        },
+                    });
+    
+                    fetch("{% url 'procesar_csv' %}", {
+                        method: "POST",
+                        body: formData,
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}",  // Asegura la protección CSRF
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            Swal.fire({
+                                icon: "success",
+                                title: "Éxito",
+                                text: "Archivo subido correctamente.",
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: "error",
+                                title: "Error",
+                                text: data.error || "Hubo un problema al subir el archivo.",
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Error",
+                            text: "No se pudo conectar con el servidor.",
+                        });
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>

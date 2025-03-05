@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/recursos.css' %}">
+    <title>Dashboard Recursos Humanos</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <ul class="nav-links">
+            <li><a href="#" class="tab-link" data-tab="dotacion">Dotación</a></li>
+            <li><a href="#" class="tab-link" data-tab="ingreso-nuevo">Ingreso Nuevo</a></li>
+            <li><a href="#" class="tab-link" data-tab="contratos">Contratos</a></li>
+            <li><a href="#" class="tab-link" data-tab="estadisticas">Estadísticas</a></li>
+        </ul>
+    </nav>
+    
+    <div id="dotacion" class="tab-content"> 
+        <h1>Bienvenido al Dashboard de Recursos Humanos</h1>
+        <p>Seleccione una opción del menú para comenzar.</p>
+    </div>
+    
+    <div id="ingreso-nuevo" class="tab-content" style="display:none;"> 
+        <h1>Ingreso Nuevo</h1>
+        <p>Aquí podrá registrar nuevos ingresos.</p>
+        <section class="chart-section">
+            <canvas id="rendimientoChart"></canvas>
+        </section>
+        <button id="btn-nuevo-registro">Nuevo Registro</button>
+        <div id="modal-registro" class="modal" style="display:none;">
+            <div class="modal-content">
+                <span class="close" id="close-modal">&times;</span>
+                <h2>Registrar Nuevo Usuario</h2>
+                <form id="registro-form">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" required>
+                    <label for="apellido">Apellido:</label>
+                    <input type="text" id="apellido" name="apellido" required>
+                    <label for="dni">DNI:</label>
+                    <input type="text" id="dni" name="dni" required>
+                    <label for="tipo_empleado">Tipo de Empleado:</label>
+                    <select id="tipo_empleado" name="tipo_empleado">
+                        <option value="Asesor">Asesor</option>
+                        <option value="Supervisor">Supervisor</option>
+                        <option value="Jefe">Jefe</option>
+                        <option value="Analista">Analista</option>
+                        <option value="Recursos">Recursos</option>
+                    </select>
+                    <button type="submit">Registrar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div id="contratos" class="tab-content" style="display:none;"> 
+        <h1>Contratos</h1>
+        <p>Sección de contratos.</p>
+    </div>
+    
+    <div id="estadisticas" class="tab-content" style="display:none;"> 
+        <h1>Estadísticas</h1>
+        <section class="chart-section">
+            <canvas id="empleadosChart"></canvas>
+        </section>
+    </div>
+
+    <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+    
+    <script>
+        document.querySelectorAll('.tab-link').forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.style.display = 'none';
+                });
+                const targetTab = document.getElementById(this.getAttribute('data-tab'));
+                if (targetTab) {
+                    targetTab.style.display = 'block';
+                }
+            });
+        });
+        
+        const ctxEmpleados = document.getElementById('empleadosChart').getContext('2d');
+        const empleadosChart = new Chart(ctxEmpleados, {
+            type: 'bar',
+            data: {
+                labels: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo'],
+                datasets: [{
+                    label: 'Ingresos Mensuales',
+                    data: [12, 19, 3, 5, 2],
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const ctxRendimiento = document.getElementById('rendimientoChart').getContext('2d');
+        const rendimientoChart = new Chart(ctxRendimiento, {
+            type: 'bar',
+            data: {
+                labels: ['Asesor 1', 'Asesor 2', 'Asesor 3', 'Asesor 4', 'Asesor 5'],
+                datasets: [{
+                    label: 'Tardanzas',
+                    data: [5, 3, 8, 2, 4],
+                    backgroundColor: 'rgba(255, 99, 132, 0.5)'
+                }, {
+                    label: 'Faltas',
+                    data: [1, 0, 2, 1, 3],
+                    backgroundColor: 'rgba(255, 159, 64, 0.5)'
+                }, {
+                    label: 'Ventas',
+                    data: [20, 15, 25, 18, 22],
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        document.getElementById("btn-nuevo-registro").addEventListener("click", function () {
+            Swal.fire({
+                title: 'Registrar Nuevo Usuario',
+                html: `
+                    <form>
+                        <input type="text" id="nombre" class="swal2-input" placeholder="Nombre">
+                        <input type="text" id="apellido" class="swal2-input" placeholder="Apellido">
+                        <input type="text" id="dni" class="swal2-input" placeholder="DNI">
+                        <select id="tipo_empleado" class="swal2-select">
+                            <option value="Asesor">Asesor</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="Jefe">Jefe</option>
+                            <option value="Analista">Analista</option>
+                            <option value="Recursos">Recursos</option>
+                        </select>
+                    </form>
+                `,
+                confirmButtonText: 'Registrar',
+                showCancelButton: true,
+                preConfirm: () => {
+                    let nombre = document.getElementById("nombre").value;
+                    let apellido = document.getElementById("apellido").value;
+                    let dni = document.getElementById("dni").value;
+                    let tipo_empleado = document.getElementById("tipo_empleado").value;
+        
+                    return fetch("{% url 'registrar_usuario_interno' %}", {  // Asegúrate de que esta URL corresponda a tu vista dashboard
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": "{{ csrf_token }}",
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ nombre, apellido, dni, tipo_empleado })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(response.statusText);
+                        }
+                        return response.json();
+                    })
+                    .catch(error => Swal.showValidationMessage(`Error: ${error}`));
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire("¡Registrado!", "El usuario ha sido registrado exitosamente.", "success");
+                }
+            });
+        });
+        
+    
+        
+    </script>
+</body>
+</html>

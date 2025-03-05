@@ -1,0 +1,93 @@
+body {
+    display: flex;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background: #2c3e50;
+    color: white;
+    transition: 0.3s;
+    padding-top: 20px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    overflow-x: hidden;
+}
+.sidebar a {
+    padding: 10px 20px;
+    display: block;
+    color: white;
+    text-decoration: none;
+    transition: 0.3s;
+}
+.sidebar a:hover {
+    background: #1a252f;
+}
+.content {
+    margin-left: 250px;
+    padding: 20px;
+    transition: 0.3s;
+    flex-grow: 1;
+}
+.toggle-btn {
+    position: absolute;
+    left: 260px;
+    top: 20px;
+    background: #34495e;
+    border: none;
+    color: white;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.collapsed .sidebar {
+    width: 0;
+    padding: 0;
+}
+.collapsed .content {
+    margin-left: 0;
+}
+.collapsed .toggle-btn {
+    left: 10px;
+}
+
+.tab-pane h2 {
+    text-align: right;
+    margin-right: 20px;
+}
+
+.tab-pane h2 {
+    text-align: right;
+    margin-right: 0;
+    padding-right: 20px;
+}
+
+.container-desempeno {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease-in-out, opacity 0.3s;
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.card.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+h3 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+

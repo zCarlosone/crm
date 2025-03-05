@@ -1,0 +1,104 @@
+{% load static crispy_forms_tags %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dashboard Ejecutivo</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/dashboard_jefe.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+</head>
+<body>
+    <div class="sidebar">
+        <h4 class="text-center">Dashboard</h4>
+        <a href="#estadisticas" class="nav-link" data-toggle="tab">Estadísticas</a>
+        <a href="#rendimiento" class="nav-link" data-toggle="tab">Desempeño</a>
+        <a href="#proyectado" class="nav-link" data-toggle="tab">Proyecciones</a>
+        <a href="#dotacion" class="nav-link" data-toggle="tab">Dotación</a>
+        <a href="#finanzas" class="nav-link" data-toggle="tab">Finanzas</a>
+    </div>
+    <button class="toggle-btn" onclick="toggleSidebar()">☰</button>
+    <div class="content">
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="estadisticas">
+                <h2>Estadísticas</h2>
+                <canvas id="chartEstadisticas"></canvas>
+            </div>
+            <div class="tab-pane fade" id="rendimiento">
+                <div class="container-desempeno">
+                    <div class="card">
+                        <h3>Comparación diaria</h3>
+                        <canvas id="chartLineal"></canvas>
+                    </div>
+                    <div class="card">
+                        <h3>Porcentaje mensual</h3>
+                        <canvas id="chartBarras"></canvas>
+                    </div>
+                </div>                
+            </div>
+            <div class="tab-pane fade" id="proyectado">
+                <h2>Proyecciones</h2>
+                <canvas id="chartProyectado"></canvas>
+            </div>
+            <div class="tab-pane fade" id="dotacion">
+                <h2>Dotación</h2>
+                <canvas id="chartDotacion"></canvas>
+            </div>
+            <div class="tab-pane fade" id="finanzas">
+                <h2>Finanzas</h2>
+                <canvas id="chartFinanzas"></canvas>
+            </div>
+            <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('.nav-link').click(function() {
+                $('.tab-pane').removeClass('show active');
+                let target = $(this).attr('href');
+                $(target).addClass('show active');
+            });
+        });
+        function toggleSidebar() {
+            document.body.classList.toggle('collapsed');
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            // Detecta cuando se entra a la pestaña "Desempeño"
+            $('a[href="#rendimiento"]').on("shown.bs.tab", function () {
+                // Muestra las tarjetas con animación
+                document.querySelectorAll(".card").forEach(card => {
+                    card.classList.add("show");
+                });
+        
+                // Genera los gráficos si aún no existen
+                if (!window.chartLineal && !window.chartBarras) {
+                    generarGraficos();
+                }
+            });
+        });
+        
+        $(document).ready(function() {
+            $('.nav-link').click(function() {
+                let target = $(this).attr('href');
+                $('.tab-pane').removeClass('show active');
+                $(target).addClass('show active');
+        
+                // Si la pestaña activa es "Desempeño", inicializar gráficos
+                if (target === "#rendimiento") {
+                    cargarGraficos();
+                }
+            });
+        });
+        
+        // Función para generar los gráficos
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,683 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervisor Dashboard</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/dashboard_sup.css' %}">
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+</head>
+<body>
+    <!-- Barra de Navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">Supervisor</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showTab('dashboard')">Dashboard Mensual</a>
+                    </li>
+                    {% comment %} <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showTab('diario')">Dashboard Diario</a>
+                    </li> {% endcomment %}
+                    {% comment %} <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showTab('base')">Base</a>
+                    </li> {% endcomment %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showTab('asistencias')">Asistencias</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showTab('ceses')">Ceses</a>
+                    </li>
+                </ul>
+                <a href="{% url 'logout' %}" class="btn btn-danger ms-auto">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido -->
+    <div class="container main-content">
+        <h1 class="text-center">Bienvenido Supervisor</h1>
+
+        <!-- Secciones -->
+       <!-- Asegúrate de incluir los archivos de DataTables -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.min.css">
+    <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <div id="dashboard" class="content-tab active">
+        <table id="clientesTable" class="display">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>DNI</th>
+                    <th>Teléfono</th>
+                    <th>Tipificación</th>
+                    <th>Descripción</th>
+                    <th>Conteo de Tipificaciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                    <tr>
+                        <td>{{ cliente.fecha_hora }}</td>
+                        <td>{{ cliente.dni_cliente }}</td>
+                        <td>{{ cliente.telefono }}</td>
+                        <td>{{ cliente.tipificacion }}</td>
+                        <td>{{ cliente.descripcion }}</td>
+                        <td>{{ cliente.conteo_tipificaciones }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Distribución de Tipificaciones</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="tipificacionesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Clientes por Día</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="clientesPorDiaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-12 mt-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Rendimiento de Asesores</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="asesoresChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="diario" class="content-tab">
+        <h3>Registro Diario</h3>
+        <table id="clientesDiariosTable" class="display">
+            <thead>
+                <tr>
+                    <th>DNI</th>
+                    <th>Teléfono</th>
+                    <th>Tipificación</th>
+                    <th>Descripción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes_hoy %}
+                    <tr>
+                        <td>{{ cliente.dni_cliente }}</td>
+                        <td>{{ cliente.telefono }}</td>
+                        <td>{{ cliente.tipificacion }}</td>
+                        <td>{{ cliente.descripcion }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Distribución de Tipificaciones Hoy</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="tipificacionesHoyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Clientes registrados hoy</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="clientesHoyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5>Clientes por Hora</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="clientesPorHoraChart"></canvas>
+                </div>
+            </div>            
+        </div>
+    </div>
+    
+
+    <div id="base" class="content-tab">
+        <input type="text" id="busqueda" placeholder="Ingrese NRO_DOC">
+        <button id="btnBuscar">Buscar</button>
+        
+        <!-- Div para mostrar los resultados -->
+        <div id="resultado"></div>
+    </div>
+        <div id="asistencias" class="content-tab">
+            <form method="POST" action="{% url 'dashboard' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="registrar_asistencia">
+            
+                <table id="tablaAsesores" class="display">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Asesor</th>
+                            <th>Campaña</th>
+                            <th>Asistencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asesor in asesores_en_gestion %}
+                        <tr>
+                            <td>{{ asesor.IdAsesor }}</td>
+                            <td>{{ asesor.nombre_apellido }}</td>
+                            <td>{{ asesor.campana }}</td>
+                            <td>
+                                <select name="asistencia_{{ asesor.IdAsesor }}">
+                                    <option value="">Seleccionar</option>
+                                    <option value="A">Asistencia</option>
+                                    <option value="T">Tardanza</option>
+                                    <option value="D">Descanso</option>
+                                    <option value="XM">Descanso Médico</option>
+                                    <option value="FJ">Falta Justificada</option>
+                                    <option value="FI">Falta Injustificada</option>
+                                    <option value="V">Vacaciones</option>
+                                    <option value="L">Licencia</option>
+                                </select>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            
+                <button type="submit">Registrar Asistencia</button>
+            </form>
+            
+        </div>
+        
+        
+        <div id="ceses" class="content-tab">
+            <h2>Cesar Asesores</h2>
+            <label for="tiendaSelector3">Seleccionar Tienda:</label>
+            <select id="tiendaSelector3">
+            {% for tienda in tiendas_del_supervisor %}
+                <option value="{{ tienda }}">{{ tienda }}</option>
+            {% endfor %}
+            </select>
+
+    <div class="table-responsive"> <!-- Asegúrate de usar un contenedor responsivo -->
+        <table id="miTabla4" class="cell-border display compact table">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Campaña</th>
+                    <th>Estado</th>
+                    <th>Fecha de Cese</th>
+                    <th>Acción</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for asesor in asesores_en_gestion %}
+                        <tr>
+                            <td>{{ asesor.nombre_apellido }}</td>
+                            <td>{{ asesor.campana }}</td>
+                            <td>
+                                <form method="post" action="{% url 'registrar_estado' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="asesor_id" value="{{ asesor.IdAsesor }}">
+                                    <select name="nuevo_estado">
+                                        <option value="Activo">Activo</option>
+                                        <option value="Cesado">Cesado</option>
+                                    </select>
+                            </td>
+                            <td>
+                                <input type="date" name="fecha_cese">
+                            </td>
+                            <td>
+                                <button type="submit" name="modificar_estados" class="btn btn-primary" id="mod" >Mod.</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- JavaScript para cambiar de pestañas -->
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.content-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabId).classList.add('active');
+
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+  
+    $('#tablaAsesores').DataTable({
+    language: {
+        url: "https://cdn.datatables.net/plug-ins/2.0.2/i18n/es-ES.json"
+    }
+});
+$(document).ready( function () {
+    $('#clientesTable').DataTable({
+        "pageLength": 5 // Limita la cantidad de filas a 5 por página
+    });
+});
+var tipificacionesChartInstance = null; // Variable global para almacenar el gráfico
+
+function actualizarTipificacionesChart(datos) {
+    var ctx = document.getElementById("tipificacionesChart").getContext("2d");
+
+    // Si ya existe un gráfico, destruirlo antes de crear uno nuevo
+    if (tipificacionesChartInstance !== null) {
+        tipificacionesChartInstance.destroy();
+    }
+
+    tipificacionesChartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: datos.labels,
+            datasets: [{
+                label: "Cantidad",
+                data: datos.values,
+                backgroundColor: "rgba(75, 192, 192, 0.2)",
+                borderColor: "rgba(75, 192, 192, 1)",
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function actualizarGraficos() {
+    // Verifica si los elementos del canvas existen antes de actualizar
+    if (document.getElementById("tipificacionesChart")) {
+        actualizarTipificacionesChart();
+    }
+    if (document.getElementById("clientesPorDiaChart")) {
+        actualizarClientesPorDiaChart();
+    }
+    if (document.getElementById("asesoresChart")) {
+        actualizarAsesoresChart();
+    }
+    if (document.getElementById("tipificacionesHoyChart")) {
+        actualizarTipificacionesHoyChart();
+    }
+    if (document.getElementById("clientesHoyChart")) {
+        actualizarClientesHoyChart();
+    }
+    if (document.getElementById("clientesPorHoraChart")) {
+        actualizarClientesPorHoraChart();
+    }
+}
+
+// Función para actualizar gráfico de Tipificaciones
+function actualizarTipificacionesChart() {
+    var ctx = document.getElementById("tipificacionesChart").getContext("2d");
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: ["Tipo 1", "Tipo 2", "Tipo 3"],  // Reemplaza con tus datos dinámicos
+            datasets: [{
+                label: "Tipificaciones",
+                data: [10, 20, 15],  // Reemplaza con tus datos reales
+                backgroundColor: ["#3498db", "#e74c3c", "#2ecc71"]
+            }]
+        }
+    });
+}
+
+// Función para actualizar gráfico de Clientes por Día
+function actualizarClientesPorDiaChart() {
+    var ctx = document.getElementById("clientesPorDiaChart").getContext("2d");
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: ["Lunes", "Martes", "Miércoles"],  // Reemplaza con tus datos dinámicos
+            datasets: [{
+                label: "Clientes por Día",
+                data: [5, 12, 8],  // Reemplaza con tus datos reales
+                borderColor: "#f39c12",
+                fill: false
+            }]
+        }
+    });
+}
+
+// Agrega aquí las funciones para los demás gráficos...
+
+//para dashboard 
+    document.addEventListener('DOMContentLoaded', function() {
+    // Gráfico de tipificaciones
+    const tipificacionesCtx = document.getElementById('tipificacionesChart').getContext('2d');
+    const tipificacionesData = {
+        labels: [{% for tipo, count in tipificaciones_data.items %}'{{ tipo }}',{% endfor %}],
+        datasets: [{
+            label: 'Número de clientes',
+            data: [{% for tipo, count in tipificaciones_data.items %}{{ count }},{% endfor %}],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.7)',
+                'rgba(54, 162, 235, 0.7)',
+                'rgba(255, 206, 86, 0.7)',
+                'rgba(75, 192, 192, 0.7)',
+                'rgba(153, 102, 255, 0.7)',
+                'rgba(255, 159, 64, 0.7)'
+            ],
+            borderWidth: 1
+        }]
+    };
+    
+    new Chart(tipificacionesCtx, {
+        type: 'pie',
+        data: tipificacionesData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Distribución de Tipificaciones'
+                }
+            }
+        }
+    });
+    
+// Gráfico de clientes por día
+    const clientesPorDiaCtx = document.getElementById('clientesPorDiaChart').getContext('2d');
+    const clientesPorDiaData = {
+        labels: [{% for fecha, count in clientes_por_dia.items %}'{{ fecha }}',{% endfor %}],
+        datasets: [{
+            label: 'Clientes registrados',
+            data: [{% for fecha, count in clientes_por_dia.items %}{{ count }},{% endfor %}],
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    };
+    
+    new Chart(clientesPorDiaCtx, {
+        type: 'line',
+        data: clientesPorDiaData,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Clientes registrados por día'
+                }
+            }
+        }
+    });
+});
+
+// Gráfico de rendimiento de asesores
+const asesoresCtx = document.getElementById('asesoresChart').getContext('2d');
+const asesoresData = {
+    labels: [{% for asesor, count in rendimiento_asesores.items %}'{{ asesor }}',{% endfor %}],
+    datasets: [{
+        label: 'Clientes atendidos',
+        data: [{% for asesor, count in rendimiento_asesores.items %}{{ count }},{% endfor %}],
+        backgroundColor: 'rgba(75, 192, 192, 0.5)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1
+    }]
+};
+
+new Chart(asesoresCtx, {
+    type: 'bar',
+    data: asesoresData,
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        },
+        plugins: {
+            title: {
+                display: true,
+                text: 'Clientes atendidos por asesor'
+            }
+        }
+    }
+});
+
+// para dashboard diario 
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Gráfico de Tipificaciones del Día
+    const tipificacionesHoyCtx = document.getElementById('tipificacionesHoyChart').getContext('2d');
+    const tipificacionesHoyData = {
+        labels: [{% for tipo, count in tipificaciones_hoy.items %}'{{ tipo }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Número de clientes',
+            data: [{% for tipo, count in tipificaciones_hoy.items %}{{ count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.7)',
+                'rgba(54, 162, 235, 0.7)',
+                'rgba(255, 206, 86, 0.7)',
+                'rgba(75, 192, 192, 0.7)',
+                'rgba(153, 102, 255, 0.7)',
+                'rgba(255, 159, 64, 0.7)'
+            ],
+            borderWidth: 1
+        }]
+    };
+
+    new Chart(tipificacionesHoyCtx, {
+        type: 'pie',
+        data: tipificacionesHoyData,
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'top' },
+                title: { display: true, text: 'Distribución de Tipificaciones Hoy' }
+            }
+        }
+    });
+
+    // Gráfico de Clientes Registrados Hoy
+    const clientesHoyCtx = document.getElementById('clientesHoyChart').getContext('2d');
+    const clientesHoyData = {
+        labels: ['Hoy'],
+        datasets: [{
+            label: 'Clientes registrados hoy',
+            data: [{% for fecha, count in clientes_por_dia_hoy.items %}{{ count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    };
+
+    new Chart(clientesHoyCtx, {
+        type: 'bar',
+        data: clientesHoyData,
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } },
+            plugins: {
+                title: { display: true, text: 'Clientes registrados hoy' }
+            }
+        }
+    });
+
+    // Gráfico de Clientes por Hora
+    const clientesPorHoraCtx = document.getElementById('clientesPorHoraChart').getContext('2d');
+    const clientesPorHoraData = {
+        labels: [{% for hora, count in clientes_por_hora.items %} '{{ hora }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Clientes registrados por hora',
+            data: [{% for hora, count in clientes_por_hora.items %} {{ count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true
+        }]
+    };
+
+    new Chart(clientesPorHoraCtx, {
+        type: 'line',
+        data: clientesPorHoraData,
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true } },
+            plugins: {
+                title: { display: true, text: 'Clientes registrados por hora' }
+            }
+        }
+    });
+});
+
+document.getElementById('btnBuscar').addEventListener('click', function() {
+      const nroDoc = document.getElementById('busqueda').value.trim();
+      if (!nroDoc) {
+        alert("Por favor, ingresa un valor para buscar.");
+        return;
+      }
+      
+      // Realizamos la petición GET a la vista de Django
+      // Se asume que la URL de la vista es "/search_excel"
+      fetch(`/search_excel/?nro_doc=${encodeURIComponent(nroDoc)}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Error en la respuesta del servidor.");
+          }
+          return response.json();
+        })
+        .then(data => {
+          const resultadoDiv = document.getElementById('resultado');
+          // Si el servidor devuelve un error, lo mostramos
+          if (data.error) {
+            resultadoDiv.innerHTML = `<p>${data.error}</p>`;
+            return;
+          }
+          // Si no hay resultados, informamos al usuario
+          if (!data.results || data.results.length === 0) {
+            resultadoDiv.innerHTML = `<p>No se encontraron resultados para ${nroDoc}.</p>`;
+            return;
+          }
+          
+          // Construimos la tabla de resultados
+          let tableHtml = "<table><thead><tr>";
+          // Obtenemos los encabezados usando las keys del primer objeto
+          const headers = Object.keys(data.results[0]);
+          headers.forEach(header => {
+            tableHtml += `<th>${header}</th>`;
+          });
+          tableHtml += "</tr></thead><tbody>";
+          
+          // Rellenamos la tabla con los datos
+          data.results.forEach(row => {
+            tableHtml += "<tr>";
+            headers.forEach(header => {
+              tableHtml += `<td>${row[header]}</td>`;
+            });
+            tableHtml += "</tr>";
+          });
+          tableHtml += "</tbody></table>";
+          
+          resultadoDiv.innerHTML = tableHtml;
+        })
+        .catch(error => {
+          console.error("Error en la búsqueda:", error);
+          document.getElementById('resultado').innerHTML = `<p>Error al realizar la búsqueda.</p>`;
+        });
+    });
+            // Ejecutar una vez al cargar la página
+            $(document).ready(function() {
+                actualizarGraficos();
+            });
+            function actualizarTablaClientes() {
+                fetch("{% url 'obtener_clientes_actualizados' %}")
+                .then(response => response.json())
+                .then(data => {
+                    let tbody = document.querySelector("#clientesTable tbody");
+                    tbody.innerHTML = ""; // Limpiar tabla
+            
+                    data.forEach(cliente => {
+                        let row = `<tr>
+                            <td>${cliente.fecha_hora}</td>
+                            <td>${cliente.dni_cliente}</td>
+                            <td>${cliente.telefono}</td>
+                            <td>${cliente.tipificacion}</td>
+                            <td>${cliente.descripcion}</td>
+                        </tr>`;
+                        tbody.innerHTML += row;
+                    });
+                })
+                .catch(error => console.error("Error al actualizar los datos:", error));
+            }
+            
+            // Ejecutar cada 10 segundos sin recargar la página
+            setInterval(() => {
+                if (typeof actualizarGraficos === "function") {
+                    actualizarGraficos();
+                } else {
+                    console.error("Error: actualizarGraficos no está definida");
+                }
+            }, 10000);
+            
+            $(document).ready(function () {
+                actualizarGraficos();
+            });
+// LEER EXCEL
+
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+.fondo {
+    background: url('') no-repeat center center fixed;
+    background-size: cover;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#login-container {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 10px 10px 25px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+}
+
+#login-title {
+    color: #000;
+    font-weight: bold;
+    margin-bottom: 25px;
+    font-size: 26px;
+}
+
+.form-control {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: #fff;
+    padding: 12px;
+    font-size: 16px;
+}
+
+.form-control::placeholder {
+    color: #ddd;
+}
+
+#login-btn {
+    background: #5b97a7;
+    border: none;
+    padding: 12px;
+    font-size: 18px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+#login-btn:hover {
+    background: #0056b3;
+}
+
+#login-alert {
+    background: rgba(255, 0, 0, 0.2);
+    color: white;
+    border: none;
+}
+
+.forgot-password {
+    color: #fff;
+    font-size: 14px;
+    display: block;
+    margin-top: 12px;
+}
+
+footer {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    color: white;
+}
+
+#username-group {
+    color: #000;
+    font-weight: bold;
+}
+
+#password-group{
+    color: #000;
+    font-weight: bold;
+}
